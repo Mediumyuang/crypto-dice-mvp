@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: crypto-dice-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: https://your-frontend.vercel.app
+      - key: DB_PATH
+        value: ./data/crypto_dice.db
+      - key: BOT_TOKEN
+        value: 8239590265:AAG0KqRXiv4h8ezDVXNZOVDBQ2nXPBDPH7Y
