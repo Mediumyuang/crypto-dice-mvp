@@ -1,11 +1,11 @@
 'use client';
 
-import { GameHistory } from '../api';
+import type { GameHistory as GameHistoryItem } from '../api';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 interface GameHistoryProps {
-    history: GameHistory[];
+    history: GameHistoryItem[];
 }
 
 export default function GameHistory({ history }: GameHistoryProps) {
@@ -26,8 +26,8 @@ export default function GameHistory({ history }: GameHistoryProps) {
                     <div
                         key={game.id}
                         className={`p-3 rounded-lg border ${game.is_win
-                                ? 'bg-green-900/20 border-green-500/30'
-                                : 'bg-red-900/20 border-red-500/30'
+                            ? 'bg-green-900/20 border-green-500/30'
+                            : 'bg-red-900/20 border-red-500/30'
                             }`}
                     >
                         <div className="flex justify-between items-center">
