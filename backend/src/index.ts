@@ -15,6 +15,10 @@ const PORT = process.env.PORT || 3001;
 initDatabase();
 
 // Middleware
+// When running behind a reverse proxy (e.g., Render, Vercel, Nginx),
+// trust the proxy so express-rate-limit can correctly read client IPs
+// from X-Forwarded-For without throwing validation errors.
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -126,10 +130,20 @@ app.post('/play', async (req, res) => {
 
         // Update user balance
         const newBalance = user.balance + winAmount;
-        updateUserBalance(user.id, newBalance);
+        try {
+            updateUserBalance(user.id, newBalance);
+        } catch (e) {
+            console.error('Play error: failed to update balance', { userId: user.id, newBalance, error: e });
+            throw e;
+        }
 
         // Add to game history
-        addGameHistory(user.id, roll, betAmount, winAmount, isWin);
+        try {
+            addGameHistory(user.id, roll, betAmount, winAmount, isWin);
+        } catch (e) {
+            console.error('Play error: failed to insert game history', { userId: user.id, roll, betAmount, winAmount, isWin, error: e });
+            throw e;
+        }
 
         res.json({
             success: true,
@@ -139,9 +153,9 @@ app.post('/play', async (req, res) => {
             newBalance,
             message
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Play error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: error?.message || 'Internal server error' });
     }
 });
 

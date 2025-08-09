@@ -7,15 +7,15 @@ const dbPath = process.env.DB_PATH || './data/crypto_dice.db';
 import fs from 'fs';
 const dataDir = path.dirname(dbPath);
 if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  fs.mkdirSync(dataDir, { recursive: true });
 }
 
 const db = new Database(dbPath);
 
 // Initialize database tables
 export function initDatabase() {
-    // Users table
-    db.exec(`
+  // Users table
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
       telegram_id INTEGER UNIQUE NOT NULL,
@@ -26,8 +26,8 @@ export function initDatabase() {
     )
   `);
 
-    // Game history table
-    db.exec(`
+  // Game history table
+  db.exec(`
     CREATE TABLE IF NOT EXISTS game_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
@@ -40,56 +40,63 @@ export function initDatabase() {
     )
   `);
 
-    console.log('Database initialized successfully');
+  console.log('Database initialized successfully');
 }
 
 // User operations
 export function getUserByTelegramId(telegramId: number) {
-    const stmt = db.prepare('SELECT * FROM users WHERE telegram_id = ?');
-    return stmt.get(telegramId) as any;
+  const stmt = db.prepare('SELECT * FROM users WHERE telegram_id = ?');
+  return stmt.get(telegramId) as any;
 }
 
 export function createUser(telegramId: number, walletAddress: string) {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     INSERT INTO users (telegram_id, wallet_address, balance) 
     VALUES (?, ?, 10.0)
   `);
-    const result = stmt.run(telegramId, walletAddress);
-    return result.lastInsertRowid;
+  const result = stmt.run(telegramId, walletAddress);
+  return result.lastInsertRowid;
 }
 
 export function updateUserBalance(userId: number, newBalance: number) {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     UPDATE users 
     SET balance = ?, updated_at = CURRENT_TIMESTAMP 
     WHERE id = ?
   `);
-    return stmt.run(newBalance, userId);
+  return stmt.run(newBalance, userId);
 }
 
 // Game history operations
 export function addGameHistory(
-    userId: number,
-    rollResult: number,
-    betAmount: number,
-    winAmount: number,
-    isWin: boolean
+  userId: number,
+  rollResult: number,
+  betAmount: number,
+  winAmount: number,
+  isWin: boolean
 ) {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     INSERT INTO game_history (user_id, roll_result, bet_amount, win_amount, is_win)
     VALUES (?, ?, ?, ?, ?)
   `);
-    return stmt.run(userId, rollResult, betAmount, winAmount, isWin);
+  // Ensure all bound params are supported types (numbers/strings)
+  const userIdNum = Number(userId);
+  const rollNum = Number(rollResult);
+  const betNum = Number(betAmount);
+  const winNum = Number(winAmount);
+  const isWinAsInt = isWin ? 1 : 0;
+
+  return stmt.run(userIdNum, rollNum, betNum, winNum, isWinAsInt);
 }
 
 export function getGameHistory(userId: number, limit: number = 10) {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     SELECT * FROM game_history 
     WHERE user_id = ? 
     ORDER BY created_at DESC 
     LIMIT ?
   `);
-    return stmt.all(userId, limit) as any[];
+  return stmt.all(userId, limit) as any[];
 }
 
 export default db;

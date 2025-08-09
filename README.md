@@ -83,8 +83,8 @@ BOT_TOKEN=8239590265:AAG0KqRXiv4h8ezDVXNZOVDBQ2nXPBDPH7Y
 
 #### Frontend (`frontend/env.example`)
 ```env
-BACKEND_URL=http://localhost:3001
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+BACKEND_URL=https://crypto-dice-mvp-bec.onrender.com
+NEXT_PUBLIC_BACKEND_URL=https://crypto-dice-mvp-bec.onrender.com
 ```
 
 ## 📡 API Endpoints
@@ -229,7 +229,7 @@ curl "http://localhost:3001/history?telegram_id=123456789"
 
 3. **Настройте переменные окружения:**
    ```
-   NEXT_PUBLIC_BACKEND_URL=https://your-backend.onrender.com
+   NEXT_PUBLIC_BACKEND_URL=https://crypto-dice-mvp-bec.onrender.com
    ```
 
 4. **Деплой автоматически запустится**
